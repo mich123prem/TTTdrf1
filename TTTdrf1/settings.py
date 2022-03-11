@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'TTTdrf1.drf1',
 ]
 
 MIDDLEWARE = [
@@ -78,7 +79,7 @@ REST_FRAMEWORK = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'michaelp_TTTdrf1',
+        'NAME': 'michaelp_TTTdrf1_1',
         'USER': 'michaelp',
         'PASSWORD': 'sar12sur',
         'HOST': '127.0.0.1',

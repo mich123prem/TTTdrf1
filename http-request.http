@@ -1,0 +1,20 @@
+POST http://127.0.0.1:8002/drf1/zone/
+Content-Type: application/json
+Cookie: key=first-value
+
+{
+  "sequencenumber": 2,
+  "lettername": "zone2",
+  "description": "søkepost",
+  "comment": "søkepost",
+  "activity": [
+    {
+      "code": "grudig",
+      "startTime": "2020-03-22T13:17:27.853707Z",
+      "numberOfVisitors": "2",
+      "countingUser":"1"
+    }
+  ]
+}
+
+###

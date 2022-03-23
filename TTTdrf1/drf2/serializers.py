@@ -17,7 +17,7 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
 class ActivitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Activity
-        fields = ['code', 'description', 'project' ]
+        fields = ['code', 'description' ]
         depth = 1
 
 class ActivityZoneSerializer(serializers.ModelSerializer):

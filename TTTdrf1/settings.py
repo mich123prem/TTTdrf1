@@ -35,7 +35,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'TTTdrf1.drf1',
+    #'TTTdrf1.drf1',
+    'TTTdrf1.drf2',
 ]
 
 MIDDLEWARE = [
@@ -79,7 +80,7 @@ REST_FRAMEWORK = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'michaelp_TTTdrf1_1',
+        'NAME': 'michaelp_TTTdrf2',
         'USER': 'michaelp',
         'PASSWORD': 'sar12sur',
         'HOST': '127.0.0.1',
@@ -125,3 +126,4 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+ALLOWED_HOSTS =["nvrtx.oslomet.no", "127.0.0.1", "localhost"]

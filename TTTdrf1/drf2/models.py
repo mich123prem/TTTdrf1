@@ -10,6 +10,13 @@ class Activity(models.Model):
 
     def __str__(self):
         return self.code
+class Project(models.Model):
+    name = models.CharField(max_length=50)
+    description = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
+
 
 class Zone(models.Model):
     lettername = models.CharField(max_length=50) # MUST ADD LIBRARY NAME TO MAKE UNIQUE ?
@@ -17,6 +24,7 @@ class Zone(models.Model):
     description = models.CharField(max_length=255)
     comment = models.CharField(max_length=255)
     activity = models.ManyToManyField(Activity, through='ActivityZone')
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.lettername
@@ -35,4 +43,5 @@ class  ActivityZone(models.Model):
 #          if an activity is releated for a zone within
 #          the hour, maybe it is not a new activity but overwrites the earlier one?
 #          What is implemented in the model, and what ini the view?
+
 

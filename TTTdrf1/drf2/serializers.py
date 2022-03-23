@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers
-from .models import Zone, Activity, ActivityZone
-
+from .models import Zone, Activity, ActivityZone, Project
+# ** TODO: USE dataclass serializer ? https://github.com/oxan/djangorestframework-dataclasses
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -14,17 +14,10 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
         model = Group
         fields = ['url', 'name']
 
-#class ZoneSerializer(serializers.)
-class ZoneSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Zone
-        fields=['lettername', 'sequencenumber', 'description', 'comment', 'activity']
-        depth = 1
-
 class ActivitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Activity
-        fields = ['code', 'description' ]
+        fields = ['code', 'description', 'project' ]
         depth = 1
 
 class ActivityZoneSerializer(serializers.ModelSerializer):
@@ -35,6 +28,16 @@ class ActivityZoneSerializer(serializers.ModelSerializer):
         fields = ['activity', 'zone', 'startTime', 'countingUser', 'numberOfVisitors']
         depth = 1
 
+
+class ZoneSerializer(serializers.ModelSerializer):
+    #Zones will be copied (created) for each counting project
+    class Meta:
+        model = Zone
+        # Zone will have a limited number of activities while activity can have "endless" zones
+        fields=['lettername', 'sequencenumber', 'description', 'comment', 'activity', 'project']
+        depth = 1
+
+
 """
 activity = models.ForeignKey(Activity, on_delete=models.CASCADE)
 zone = models.ForeignKey(Zone, on_delete=models.CASCADE)
@@ -43,3 +46,8 @@ zone = models.ForeignKey(Zone, on_delete=models.CASCADE)
     numberOfVisitors = models.IntegerField() # THE COUNT ITSELF
 
 """
+class ProjectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Project
+        fields = ['name', 'description' ]
+        depth = 1

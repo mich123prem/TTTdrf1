@@ -2,13 +2,16 @@ from django.shortcuts import render
 from django.contrib.auth.models import User, Group
 from rest_framework import viewsets
 from rest_framework import permissions
-from TTTdrf1.drf1.serializers import UserSerializer, GroupSerializer, ActivitySerializer, ZoneSerializer
-from .models import Activity, Zone, ActivityZone
+from TTTdrf1.drf2.serializers import UserSerializer, GroupSerializer, ActivitySerializer, ZoneSerializer, \
+    ProjectSerializer
+from .models import Activity, Zone, ActivityZone, Project
 from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
+
+# **TODO: Check references to drf1. maybe rename it to avoid confusion?
 
 # Create your views here.
 class UserViewSet(viewsets.ModelViewSet):
@@ -28,57 +31,69 @@ class GroupViewSet(viewsets.ModelViewSet):
     serializer_class = GroupSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+
 class ActivityViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows activities to be viewed or edited.
     """
     serializer_class = ActivitySerializer
+
     def get_queryset(self):
-        activity=Activity.objects.all() #can also use other methods, like get() or complexFilter
+        activity = Activity.objects.all()  # can also use other methods, like get() or complexFilter
         return activity
 
     # ** DO WE ACTUALLY NEED THIS? Both activities and zones will be created from the admin.
     def create(self, request, *args, **kwargs):
         data = request.data
-        new_activity=Activity.objects.create(code=data["code"], description=data['description'], comment=data['comment'])
+        new_activity = Activity.objects.create(
+            code=data["code"],
+            description=data['description'],
+            comment=data['comment'])
         new_activity.save()
         serializer = ActivitySerializer(new_activity)
         return Response(serializer.data)
+
 
 class ZoneViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows activities to be viewed or edited.
     """
     serializer_class = ZoneSerializer
+
     def get_queryset(self):
-        zone=Zone.objects.all() #can also use other methods, like get() or complexFilter
+        zone = Zone.objects.all()  # can also use other methods, like get() or complexFilter
         return zone
+
     def createActivityZone(self, activity_item, zone_obj, activity_obj):
         # ** TODO: Check if a registration is actually new, or a close enough in time registration already exists
         # ** TODO: Shall we split date and time?
         return ActivityZone.objects.create(activity=activity_obj,
-                                    zone = zone_obj,#.pk,
-                                    startTime=activity_item["startTime"],
-                                    numberOfVisitors=activity_item["numberOfVisitors"],
-                                    countingUser=activity_item["countingUser"])
+                                           zone=zone_obj,  # .pk,
+                                           startTime=activity_item["startTime"],
+                                           numberOfVisitors=activity_item["numberOfVisitors"],
+                                           countingUser=activity_item["countingUser"])
 
     def create(self, request, *args, **kwargs):
         data = request.data
         # check if zone does not exist yet?
         try:
-            zone_obj = Zone.objects.get(lettername=data["lettername"], sequencenumber=data['sequencenumber'], description=data['description'], comment=data['comment'])
+            zone_obj = Zone.objects.get(lettername=data["lettername"], sequencenumber=data['sequencenumber'],
+                                        description=data['description'], comment=data['comment'])
         except:
-            new_zone_obj = Zone.objects.create(lettername=data["lettername"], sequencenumber=data['sequencenumber'], description=data['description'], comment=data['comment'])
+            new_zone_obj = Zone.objects.create(lettername=data["lettername"], sequencenumber=data['sequencenumber'],
+                                               description=data['description'], comment=data['comment'])
             new_zone_obj.save()
-            zone_obj=new_zone_obj
+            zone_obj = new_zone_obj
         for activity_item in data["activity"]:
             activity_obj = Activity.objects.get(code=activity_item["code"])
-            #print("activity_obj:", activity_obj)
-            activityZone_obj=self.createActivityZone(activity_item, zone_obj, activity_obj)
-            new_zone_obj.activity.add(activity_obj)
+            # print("activity_obj:", activity_obj)
+            activityZone_obj = self.createActivityZone(activity_item, zone_obj, activity_obj)
+            zone_obj.activity.add(activity_obj)
 
         serializer = ZoneSerializer(new_zone_obj)
         return Response(serializer.data)
+
+
 """
     activity = models.ForeignKey(Activity, on_delete=models.CASCADE)
     zone = models.ForeignKey(Zone, on_delete=models.CASCADE)
@@ -88,16 +103,52 @@ class ZoneViewSet(viewsets.ModelViewSet):
 
 """
 
+
+class ProjectViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows projects to be viewed or edited.
+    """
+    serializer_class = ProjectSerializer
+
+    def get_queryset(self):
+        activity = Activity.objects.all()  # can also use other methods, like get() or complexFilter
+        return activity
+
+        # ** DO WE ACTUALLY NEED THIS? Both activities, zones and projects will be created from the admin GUI.
+
+    def create(self, request, *args, **kwargs):
+        data = request.data
+            # check if zone does not exist yet?
+        try:
+            project_obj = Project.objects.get(name=data["name"],
+                                                  description=data['description'])
+        except:
+            new_project_obj = Project.objects.create(name=data["name"], description=data['description'])
+            new_project_obj.save()
+            project_obj = new_project_obj
+
+        for zone_item in data["zone"]:
+            zone_obj = Zone.objects.get(lettername=zone_item["lettername"])
+            # print("activity_obj:", activity_obj)
+            # activityZone_obj = self.createActivityZone(activity_item, zone_obj, activity_obj)
+            project_obj.add(zone_obj)
+
+        serializer = ProjectSerializer(project_obj)
+        return Response(serializer.data)
+
+
 #########################################################################################
 class ActivityList(APIView):
     """
     List all Activities, or create a new activity.
     """
+
     def get(self, request, format=None):
-        activities = Activity.objects.all() #Here we could use get, for getting only activities for a certain library?
+        activities = Activity.objects.all()  # Here we could use get, for getting only activities for a certain library?
         serializer = ActivitySerializer(activities, many=True)
         return Response(serializer.data)
 
+    # **TODO - do we need it?
     def post(self, request, format=None):
         serializer = ActivitySerializer(data=request.data)
         if serializer.is_valid():
@@ -105,10 +156,12 @@ class ActivityList(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class ActivityDetail(APIView):
     """
     Retrieve, update or delete a activity instance.
     """
+
     def get_object(self, pk):
         try:
             return Activity.objects.get(pk=pk)
@@ -133,4 +186,4 @@ class ActivityDetail(APIView):
         activity.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-#class ZoneList(APIView):
+# class ZoneList(APIView):

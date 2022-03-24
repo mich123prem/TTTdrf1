@@ -10,9 +10,10 @@ class Activity(models.Model):
 
     def __str__(self):
         return self.code
+
 class Project(models.Model):
     name = models.CharField(max_length=50)
-    description = models.CharField(max_length=255)
+    description = models.CharField(max_length=255, default = "", blank=True)
 
     def __str__(self):
         return self.name
@@ -22,9 +23,14 @@ class Zone(models.Model):
     lettername = models.CharField(max_length=50) # MUST ADD LIBRARY NAME TO MAKE UNIQUE ?
     sequencenumber = models.IntegerField()
     description = models.CharField(max_length=255)
-    comment = models.CharField(max_length=255)
+    observerName=models.CharField(max_length=255, default = "", blank=True)
+    comment = models.CharField(max_length=255, default = "", blank=True)
     activity = models.ManyToManyField(Activity, through='ActivityZone')
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
+
+
+    class Meta:
+        unique_together= ['lettername', 'sequencenumber', 'project']
 
     def __str__(self):
         return self.lettername
@@ -33,9 +39,13 @@ class Zone(models.Model):
 class  ActivityZone(models.Model):
     activity = models.ForeignKey(Activity, on_delete=models.CASCADE)
     zone = models.ForeignKey(Zone, on_delete=models.CASCADE)
-    startTime = models.DateTimeField(auto_now=False) # App registers time
-    countingUser = models.IntegerField() # **TODO: foreign key to a user
-    numberOfVisitors = models.IntegerField() # THE COUNT ITSELF
+    startTime = models.DateTimeField(auto_now=False, blank=True) # App registers time True for establish time
+    countingUser = models.IntegerField(default=0) # **TODO: foreign key to a user
+    numberOfVisitors = models.IntegerField(default=-1) # THE COUNT ITSELF
+
+    class Meta:
+        unique_together = ['activity', 'zone']
+
     def __str__(self):
         return str(self.startTime) + " " + str(self.countingUser) + " " + str(self.numberOfVisitors)
 # ** TODO: how to enforce uniqueness constraints:

@@ -31,6 +31,18 @@ class GroupViewSet(viewsets.ModelViewSet):
     serializer_class = GroupSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+def createActivityZone(activity_item, zone_obj, activity_obj):
+        # ** TODO: Check if a registration is actually new, or a close enough in time registration already exists
+
+        # ** TODO: Shall we split date and time?
+        try:
+            activity_zone_obj=ActivityZone.objects.get(activity=activity_obj, zone=zone_obj)
+        except:
+            activity_zone_obj=ActivityZone.objects.create(activity=activity_obj,
+                                                zone=zone_obj, startTime=activity_item["startTime"])
+        activity_zone_obj.numberOfVisitors=activity_item["numberOfVisitors"]
+        #activity_zone_obj.startTime=activity_item["startTime"]
+        return activity_zone_obj
 
 class ActivityViewSet(viewsets.ModelViewSet):
     """
@@ -63,16 +75,27 @@ class ZoneViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         zone = Zone.objects.all()  # can also use other methods, like get() or complexFilter
         return zone
-
+    # TODO: **Trenger vi egentlig denne? activityZones bare brukes i prosjekter
     def createActivityZone(self, activity_item, zone_obj, activity_obj):
         # ** TODO: Check if a registration is actually new, or a close enough in time registration already exists
+
         # ** TODO: Shall we split date and time?
-        return ActivityZone.objects.create(activity=activity_obj,
+        try:
+            activity_zone_obj=ActivityZone.objects.get(activity=activity_obj, zone=zone_obj)
+        except:
+            activity_zone_obj=ActivityZone.objects.create(activity=activity_obj,
+                                                zone=zone_obj)
+        activity_zone_obj.numberOfVisitors=activity_item["numberOfVisitors"]
+        activity_zone_obj.startTime=activity_item["startTime"]
+        return activity_zone_obj
+        """
+        return activity_zone_obj.
+            (activity=activity_obj,
                                            zone=zone_obj,  # .pk,
                                            startTime=activity_item["startTime"],
                                            numberOfVisitors=activity_item["numberOfVisitors"],
                                            countingUser=activity_item["countingUser"])
-
+        """
     def create(self, request, *args, **kwargs):
         data = request.data
         # check if zone does not exist yet?
@@ -84,15 +107,19 @@ class ZoneViewSet(viewsets.ModelViewSet):
                                                description=data['description'], comment=data['comment'])
             new_zone_obj.save()
             zone_obj = new_zone_obj
+
         for activity_item in data["activity"]:
             activity_obj = Activity.objects.get(code=activity_item["code"])
             # print("activity_obj:", activity_obj)
-            activityZone_obj = self.createActivityZone(activity_item, zone_obj, activity_obj)
+            activityZone_obj = zone_obj.activityzone_set.get_or_create(activity_obj, zone_obj)#self.createActivityZone(activity_item, zone_obj, activity_obj)
+
             zone_obj.activity.add(activity_obj)
 
         serializer = ZoneSerializer(new_zone_obj)
         return Response(serializer.data)
 
+    def update(self, request, *args, **kwargs):
+        pass
 
 """
     activity = models.ForeignKey(Activity, on_delete=models.CASCADE)
@@ -111,27 +138,44 @@ class ProjectViewSet(viewsets.ModelViewSet):
     serializer_class = ProjectSerializer
 
     def get_queryset(self):
-        activity = Activity.objects.all()  # can also use other methods, like get() or complexFilter
-        return activity
+        projects = Project.objects.all()  # can also use other methods, like get() or complexFilter
+        return projects
 
         # ** DO WE ACTUALLY NEED THIS? Both activities, zones and projects will be created from the admin GUI.
 
     def create(self, request, *args, **kwargs):
         data = request.data
-            # check if zone does not exist yet?
+        project_item=data["project"]
+            # check if project does not exist yet?
         try:
-            project_obj = Project.objects.get(name=data["name"],
-                                                  description=data['description'])
+            project_obj = Project.objects.get(name=project_item["name"])
         except:
-            new_project_obj = Project.objects.create(name=data["name"], description=data['description'])
+            new_project_obj = Project.objects.create(name=project_item["name"])
             new_project_obj.save()
             project_obj = new_project_obj
 
-        for zone_item in data["zone"]:
-            zone_obj = Zone.objects.get(lettername=zone_item["lettername"])
-            # print("activity_obj:", activity_obj)
-            # activityZone_obj = self.createActivityZone(activity_item, zone_obj, activity_obj)
-            project_obj.add(zone_obj)
+        for zone_item in project_item["zone"]:
+            zone_obj = Zone.objects.get(lettername=zone_item["lettername"],project=project_obj)
+            print("zi=",zone_item)
+            zone_obj.observerName=zone_item["observerName"]
+            zone_obj.save()
+            for activity_item in zone_item["activity"]:
+                # WE ASSUME ACTIVITY EXISTS!!!
+                #activityZone_obj=ActivityZone.objects.get_or_create(zone=zone_obj,)
+                activity_obj=Activity.objects.get(code=activity_item["code"])
+                activity_zone_obj = createActivityZone(activity_item, zone_obj, activity_obj) #zone_obj.activityzone_set.get_or_create(zone=zone_obj, activity=activity_obj)
+
+                activity_zone_obj.numberOfVisitors = activity_item["numberOfVisitors"]
+                activity_zone_obj.startTime = activity_item["startTime"]
+                activity_zone_obj.save()
+                #zone_obj.add(activity_zone_obj)
+            #print("activity_obj:", activity_obj)
+
+            #project_obj.add(zone_obj)
+
+
+
+
 
         serializer = ProjectSerializer(project_obj)
         return Response(serializer.data)
@@ -186,4 +230,23 @@ class ActivityDetail(APIView):
         activity.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+class ActivityList(APIView):
+    """
+    List all Activities, or create a new activity.
+    """
+
+    def get(self, request, format=None):
+        activities = Activity.objects.all()  # Here we could use get, for getting only activities for a certain library?
+        serializer = ActivitySerializer(activities, many=True)
+        return Response(serializer.data)
+
+    # **TODO - do we need it?
+    def post(self, request, format=None):
+        serializer = ActivitySerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 # class ZoneList(APIView):
+#class FullProjectList(APIView):

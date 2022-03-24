@@ -23,6 +23,7 @@ class ActivitySerializer(serializers.ModelSerializer):
 class ActivityZoneSerializer(serializers.ModelSerializer):
 
     fields = ActivitySerializer(source='activityzone_set', many=True)
+    startTime=serializers.DateTimeField(format="iso-8601", required=False)
     class Meta:
         model = ActivityZone
         fields = ['activity', 'zone', 'startTime', 'countingUser', 'numberOfVisitors']
@@ -34,18 +35,13 @@ class ZoneSerializer(serializers.ModelSerializer):
     class Meta:
         model = Zone
         # Zone will have a limited number of activities while activity can have "endless" zones
-        fields=['lettername', 'sequencenumber', 'description', 'comment', 'activity', 'project']
+
+        fields=['lettername', 'observerName' ,'sequencenumber', 'description', 'comment', 'activity', 'project']
+
         depth = 1
 
 
-"""
-activity = models.ForeignKey(Activity, on_delete=models.CASCADE)
-zone = models.ForeignKey(Zone, on_delete=models.CASCADE)
-    startTime = models.DateTimeField(auto_now=False) # App registers time
-    countingUser = models.IntegerField() # **TODO: foreign key to a user
-    numberOfVisitors = models.IntegerField() # THE COUNT ITSELF
 
-"""
 class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project

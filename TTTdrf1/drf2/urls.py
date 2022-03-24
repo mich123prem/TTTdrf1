@@ -7,7 +7,7 @@ from rest_framework.routers import DefaultRouter
 router=DefaultRouter()
 router.register("zone", ZoneViewSet, basename="zone")
 router.register("activity", ActivityViewSet, basename="activity")
-router.register("project", ProjectViewSet, basename="activity")
+router.register("project", ProjectViewSet, basename="project")
 urlpatterns = [
 
    path('activities/', ActivityList.as_view()),

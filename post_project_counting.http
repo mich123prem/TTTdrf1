@@ -1,0 +1,45 @@
+POST http://localhost:8001/drf2/project/
+Content-Type: application/json
+Cookie: key=first-value
+
+{
+  "project": {
+    "name": "tonsberg22",
+    "zone": [
+      {
+        "lettername": "zone3",
+        "observerName": "alf",
+        "activity": [
+          {
+            "code": "GRUDIG",
+            "startTime": "2022-03-12 13:19:27",
+            "numberOfVisitors": "1"
+          },
+          {
+            "code": "ALLAP",
+            "startTime": "2022-03-12 13:19:27",
+            "numberOfVisitors": "2"
+          }
+        ]
+      },
+      {
+        "lettername": "zone1",
+        "observerName": "alf",
+        "activity": [
+          {
+            "code": "GRUDIG",
+            "startTime": "2022-03-12 13:17:27",
+            "numberOfVisitors": "1"
+          },
+          {
+            "code": "ALLAP",
+            "startTime": "2022-03-12 13:17:27",
+            "numberOfVisitors": "2"
+          }
+        ]
+      }
+    ]
+  }
+}
+
+###

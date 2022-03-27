@@ -23,7 +23,9 @@ class Counting(models.Model):
     observerName=models.CharField(max_length=50, default = "", blank=True)
     startTime = models.DateTimeField(auto_now=False, blank=True)
     class Meta:
-        unique_together= ['startTime']
+        unique_together= ['project','startTime']
+        # TODO: ** a counting at a project at a library needs to be unique
+        #    For simplicity projects can be unique across domain (all libraries)
 
 class Zone(models.Model):
     lettername = models.CharField(max_length=50) # MUST ADD LIBRARY NAME TO MAKE UNIQUE ?

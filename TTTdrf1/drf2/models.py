@@ -18,6 +18,12 @@ class Project(models.Model):
     def __str__(self):
         return self.name
 
+class Counting(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    observerName=models.CharField(max_length=50, default = "", blank=True)
+    startTime = models.DateTimeField(auto_now=False, blank=True)
+    class Meta:
+        unique_together= ['startTime']
 
 class Zone(models.Model):
     lettername = models.CharField(max_length=50) # MUST ADD LIBRARY NAME TO MAKE UNIQUE ?
@@ -39,15 +45,16 @@ class Zone(models.Model):
 class  ActivityZone(models.Model):
     activity = models.ForeignKey(Activity, on_delete=models.CASCADE)
     zone = models.ForeignKey(Zone, on_delete=models.CASCADE)
-    startTime = models.DateTimeField(auto_now=False, blank=True) # App registers time True for establish time
+    #startTime = models.DateTimeField(auto_now=False, blank=True) # App registers time True for establish time
     countingUser = models.IntegerField(default=0) # **TODO: foreign key to a user
     numberOfVisitors = models.IntegerField(default=-1) # THE COUNT ITSELF
+    counting = models.ForeignKey(Counting, default=1, on_delete=models.CASCADE) # ** TODO: counting 1 must be a dummy
 
     class Meta:
         unique_together = ['activity', 'zone']
 
     def __str__(self):
-        return str(self.startTime) + " " + str(self.countingUser) + " " + str(self.numberOfVisitors)
+        return  str(self.zone.description) + " " +  str(self.activity.code) + " " +  str(self.numberOfVisitors)
 # ** TODO: how to enforce uniqueness constraints:
 #          if an activity is repeated the same day? overwrite?
 #          if an activity is releated for a zone within

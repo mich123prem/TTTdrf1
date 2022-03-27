@@ -1,0 +1,34 @@
+POST http://localhost:8001/drf2/counting/
+Content-Type: application/json
+Cookie: key=first-value
+
+{
+  "project_id": 1,
+  "observer_name": "Alf",
+  "timestamp": "2022-03-14 10:30",
+  "ActivityZones": [
+    {
+      "zone_ID": "1",
+      "Activities": [
+        {
+          "code": "ALLAP",
+          "count": "5"
+        },
+        {
+          "code": "GRUDIG",
+          "count": "4"
+        }
+      ]
+    },
+    {
+      "zone_ID": "2",
+      "Activities": [
+        {
+          "code": "KØ",
+          "count": "1"
+        }
+      ]
+    }
+  ]
+}
+

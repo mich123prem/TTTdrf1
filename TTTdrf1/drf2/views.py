@@ -3,8 +3,8 @@ from django.contrib.auth.models import User, Group
 from rest_framework import viewsets
 from rest_framework import permissions
 from TTTdrf1.drf2.serializers import UserSerializer, GroupSerializer, ActivitySerializer, ZoneSerializer, \
-    ProjectSerializer
-from .models import Activity, Zone, ActivityZone, Project
+    ProjectSerializer, CountingSerializer
+from .models import Activity, Zone, ActivityZone, Project, Counting
 from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -31,17 +31,15 @@ class GroupViewSet(viewsets.ModelViewSet):
     serializer_class = GroupSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-def createActivityZone(activity_item, zone_obj, activity_obj):
+def createActivityZone(activity_item, zone_obj, activity_obj, counting_obj):
         # ** TODO: Check if a registration is actually new, or a close enough in time registration already exists
 
         # ** TODO: Shall we split date and time?
-        try:
-            activity_zone_obj=ActivityZone.objects.get(activity=activity_obj, zone=zone_obj)
-        except:
-            activity_zone_obj=ActivityZone.objects.create(activity=activity_obj,
-                                                zone=zone_obj, startTime=activity_item["startTime"])
-        activity_zone_obj.numberOfVisitors=activity_item["numberOfVisitors"]
-        #activity_zone_obj.startTime=activity_item["startTime"]
+
+        activity_zone_obj=ActivityZone.objects.create(activity=activity_obj,
+                                                zone=zone_obj, counting=counting_obj)
+        activity_zone_obj.numberOfVisitors=activity_item["count"]
+
         return activity_zone_obj
 
 class ActivityViewSet(viewsets.ModelViewSet):
@@ -86,16 +84,9 @@ class ZoneViewSet(viewsets.ModelViewSet):
             activity_zone_obj=ActivityZone.objects.create(activity=activity_obj,
                                                 zone=zone_obj)
         activity_zone_obj.numberOfVisitors=activity_item["numberOfVisitors"]
-        activity_zone_obj.startTime=activity_item["startTime"]
+        #activity_zone_obj.startTime=activity_item["startTime"]
         return activity_zone_obj
-        """
-        return activity_zone_obj.
-            (activity=activity_obj,
-                                           zone=zone_obj,  # .pk,
-                                           startTime=activity_item["startTime"],
-                                           numberOfVisitors=activity_item["numberOfVisitors"],
-                                           countingUser=activity_item["countingUser"])
-        """
+
     def create(self, request, *args, **kwargs):
         data = request.data
         # check if zone does not exist yet?
@@ -130,6 +121,48 @@ class ZoneViewSet(viewsets.ModelViewSet):
 
 """
 
+class CountingViewSet(viewsets.ModelViewSet):
+    serializer_class = CountingSerializer
+
+    def get_queryset(self):
+        countings = Counting.objects.all()
+        return countings
+
+    def create(self, request, *args, **kwargs):
+        data = request.data
+        counting_item=data # **TODO: ["counting"] ?
+        # check if project does not exist yet?
+        #try: A COUNTING OBJECT IS ALWAYS NEW
+            #counting_obj = Project.objects.get(name=project_item["name"])
+        #except:
+        counting_obj = Counting.objects.create(
+            project=Project.objects.get(pk=counting_item["project_id"]),#counting_item["project_id"]),
+
+            startTime=counting_item["timestamp"],
+            observerName = counting_item["observer_name"]
+                                               )
+        print( "pn=",counting_obj.project.pk, counting_obj.project.name )
+        counting_obj.save()
+        for zone_item in counting_item["ActivityZones"]:
+            zone_obj = Zone.objects.get(pk=zone_item["zone_ID"]) # Or use zone name
+                #lettername=zone_item["lettername"],
+
+                                        #project=project_obj)
+            for activity_item in zone_item["Activities"]:
+                # WE ASSUME ACTIVITY EXISTS!!!
+                #activityZone_obj=ActivityZone.objects.get_or_create(zone=zone_obj,)
+                activity_obj=Activity.objects.get(code=activity_item["code"])
+                activity_zone_obj = createActivityZone(activity_item, zone_obj, activity_obj, counting_obj) #zone_obj.activityzone_set.get_or_create(zone=zone_obj, activity=activity_obj)
+
+                activity_zone_obj.numberOfVisitors = activity_item["count"]
+                #activity_zone_obj.startTime = activity_item["startTime"]
+                activity_zone_obj.save()
+                #zone_obj.add(activity_zone_obj)
+            #print("activity_obj:", activity_obj)
+
+            #project_obj.add(zone_obj)
+        serializer = CountingSerializer(counting_obj)
+        return Response(serializer.data)
 
 class ProjectViewSet(viewsets.ModelViewSet):
     """
@@ -145,15 +178,15 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         data = request.data
-        project_item=data["project"]
+        project_id=data["project_id"]
             # check if project does not exist yet?
         try:
-            project_obj = Project.objects.get(name=project_item["name"])
+            project_obj = Project.objects.get(name="tonsberg22")#({"pk": project_id})#(name=project_item["name"])
         except:
-            new_project_obj = Project.objects.create(name=project_item["name"])
+            new_project_obj = Project.objects.create(name="tonsberg22")
             new_project_obj.save()
             project_obj = new_project_obj
-
+        """
         for zone_item in project_item["zone"]:
             zone_obj = Zone.objects.get(lettername=zone_item["lettername"],project=project_obj)
             print("zi=",zone_item)
@@ -172,7 +205,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
             #print("activity_obj:", activity_obj)
 
             #project_obj.add(zone_obj)
-
+        """
 
 
 

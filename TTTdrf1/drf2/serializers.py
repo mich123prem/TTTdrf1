@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers
-from .models import Zone, Activity, ActivityZone, Project
+from .models import Zone, Activity, ActivityZone, Project, Counting
 # ** TODO: USE dataclass serializer ? https://github.com/oxan/djangorestframework-dataclasses
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -23,10 +23,10 @@ class ActivitySerializer(serializers.ModelSerializer):
 class ActivityZoneSerializer(serializers.ModelSerializer):
 
     fields = ActivitySerializer(source='activityzone_set', many=True)
-    startTime=serializers.DateTimeField(format="iso-8601", required=False)
+    #startTime=serializers.DateTimeField(format="iso-8601", required=False)
     class Meta:
         model = ActivityZone
-        fields = ['activity', 'zone', 'startTime', 'countingUser', 'numberOfVisitors']
+        fields = ['activity', 'zone', 'countingUser', 'numberOfVisitors']
         depth = 1
 
 
@@ -40,10 +40,15 @@ class ZoneSerializer(serializers.ModelSerializer):
 
         depth = 1
 
-
-
 class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
         fields = ['name', 'description' ]
         depth = 1
+
+class CountingSerializer(serializers.ModelSerializer):
+    #fields = ProjectSerializer( source='counting_set', many=True ) # TODO ** ?
+    startTime=serializers.DateTimeField(format="iso-8601", required=True)
+    class Meta:
+        model=Counting
+        fields=['project', 'startTime' , 'observerName']

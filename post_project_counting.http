@@ -1,4 +1,4 @@
-POST http://localhost:8001/drf2/project/
+POST http://nvrtx.oslomet.no:8001/drf2/project/
 Content-Type: application/json
 Cookie: key=first-value
 

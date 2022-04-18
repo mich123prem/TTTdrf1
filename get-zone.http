@@ -1,2 +1,2 @@
-GET http://127.0.0.1:8002/drf1/zone/
+GET http://127.0.0.1:8002/drf1/project/
 Accept: application/json

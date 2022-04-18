@@ -1,4 +1,4 @@
-POST http://localhost:8001/drf2/counting/
+POST http://nvrtx.oslomet.no:8001/drf2/counting/
 Content-Type: application/json
 Cookie: key=first-value
 
@@ -12,7 +12,7 @@ Cookie: key=first-value
       "Activities": [
         {
           "code": "ALLAP",
-          "count": "5"
+          "count": 5
         },
         {
           "code": "GRUDIG",

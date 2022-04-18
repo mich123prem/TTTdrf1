@@ -15,10 +15,13 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
         fields = ['url', 'name']
 
 class ActivitySerializer(serializers.ModelSerializer):
+
+
     class Meta:
         model = Activity
         fields = ['code', 'description' ]
         depth = 1
+
 
 class ActivityZoneSerializer(serializers.ModelSerializer):
 
@@ -36,14 +39,16 @@ class ZoneSerializer(serializers.ModelSerializer):
         model = Zone
         # Zone will have a limited number of activities while activity can have "endless" zones
 
-        fields=['lettername', 'observerName' ,'sequencenumber', 'description', 'comment', 'activity', 'project']
+        fields=['lettername', 'observerName' ,'sequencenumber', 'description', 'comment', 'activities', 'project']
 
         depth = 1
 
 class ProjectSerializer(serializers.ModelSerializer):
+    activities=ActivitySerializer(many=True)
+    zones=ZoneSerializer(many=True)
     class Meta:
         model = Project
-        fields = ['name', 'description' ]
+        fields = ['name', 'description', 'activities', 'zones' ]
         depth = 1
 
 class CountingSerializer(serializers.ModelSerializer):

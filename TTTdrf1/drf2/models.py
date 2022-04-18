@@ -14,7 +14,8 @@ class Activity(models.Model):
 class Project(models.Model):
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=255, default = "", blank=True)
-
+    activities = models.ManyToManyField( Activity, blank="True" )
+    #zones = models.ManyToOneRel('Zone')
     def __str__(self):
         return self.name
 
@@ -33,8 +34,8 @@ class Zone(models.Model):
     description = models.CharField(max_length=255)
     observerName=models.CharField(max_length=255, default = "", blank=True)
     comment = models.CharField(max_length=255, default = "", blank=True)
-    activity = models.ManyToManyField(Activity, through='ActivityZone')
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    activities = models.ManyToManyField(Activity, through='ActivityZone')
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='zones')
 
 
     class Meta:

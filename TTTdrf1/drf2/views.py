@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User, Group
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from rest_framework import permissions
 from TTTdrf1.drf2.serializers import UserSerializer, GroupSerializer, ActivitySerializer, ZoneSerializer, \
@@ -9,6 +10,7 @@ from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from pprint import pprint
 
 
 # **TODO: Check references to drf1. maybe rename it to avoid confusion?
@@ -170,6 +172,17 @@ class ProjectViewSet(viewsets.ModelViewSet):
     """
     serializer_class = ProjectSerializer
 
+    def get_object(self, pk):
+        try:
+            return Project.objects.get(pk=pk)
+        except Project.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+        project = self.get_object(pk)
+        serializer = ProjectSerializer(project)
+        return Response(serializer.data)
+
     def get_queryset(self):
         projects = Project.objects.all()  # can also use other methods, like get() or complexFilter
         return projects
@@ -186,32 +199,18 @@ class ProjectViewSet(viewsets.ModelViewSet):
             new_project_obj = Project.objects.create(name="tonsberg22")
             new_project_obj.save()
             project_obj = new_project_obj
-        """
-        for zone_item in project_item["zone"]:
-            zone_obj = Zone.objects.get(lettername=zone_item["lettername"],project=project_obj)
-            print("zi=",zone_item)
-            zone_obj.observerName=zone_item["observerName"]
-            zone_obj.save()
-            for activity_item in zone_item["activity"]:
-                # WE ASSUME ACTIVITY EXISTS!!!
-                #activityZone_obj=ActivityZone.objects.get_or_create(zone=zone_obj,)
-                activity_obj=Activity.objects.get(code=activity_item["code"])
-                activity_zone_obj = createActivityZone(activity_item, zone_obj, activity_obj) #zone_obj.activityzone_set.get_or_create(zone=zone_obj, activity=activity_obj)
-
-                activity_zone_obj.numberOfVisitors = activity_item["numberOfVisitors"]
-                activity_zone_obj.startTime = activity_item["startTime"]
-                activity_zone_obj.save()
-                #zone_obj.add(activity_zone_obj)
-            #print("activity_obj:", activity_obj)
-
-            #project_obj.add(zone_obj)
-        """
-
-
-
 
         serializer = ProjectSerializer(project_obj)
         return Response(serializer.data)
+
+    def retrieve(self, request, name=None):
+        queryset= Project.objects.all()
+        project=get_object_or_404(queryset, name=name)
+        serializer = ProjectSerializer(project)
+        return Response(serializer.data)
+
+
+
 
 
 #########################################################################################
@@ -263,23 +262,38 @@ class ActivityDetail(APIView):
         activity.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-class ActivityList(APIView):
-    """
-    List all Activities, or create a new activity.
-    """
-
-    def get(self, request, format=None):
-        activities = Activity.objects.all()  # Here we could use get, for getting only activities for a certain library?
-        serializer = ActivitySerializer(activities, many=True)
-        return Response(serializer.data)
-
-    # **TODO - do we need it?
-    def post(self, request, format=None):
-        serializer = ActivitySerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 # class ZoneList(APIView):
 #class FullProjectList(APIView):
+class ProjectDetail(APIView):
+    """
+    Retrieve, update or delete a activity instance.
+    """
+
+    def get_object(self, pk):
+        try:
+            return Project.objects.get(pk=pk)
+        except Project.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+        project = self.get_object(pk)
+        serializer = ProjectSerializer(project)
+        return Response(serializer.data)
+
+class ProjectByName(APIView):
+    def get_object(self, pk):
+        try:
+            return Project.objects.get(pk=pk)
+        except Project.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk=0, format=None):
+        print("rd:", end="")
+        pprint(request)
+        serializer=ProjectSerializer(project)
+
+        """
+        project = self.get_object(pk)
+        serializer = ProjectSerializer(project)
+        return Response(serializer.data)
+        """

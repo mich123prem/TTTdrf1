@@ -1,0 +1,25 @@
+POST http://nvrtx.oslomet.no:8001/drf2/project/
+Content-Type: application/json
+Cookie: key=first-value
+
+{
+  "project_id":1,
+  "observer_name":"C",
+  "timestamp":"2022-04-20 09:59:08.038083",
+  "ActivityZones": [
+       {"zone_ID":"0",
+        "Activities": [
+            {"code":"ALLAP","count":3},
+            {"code":"GRUDIG","count":4}
+         ]
+        },
+          {"zone_ID":"1",
+           "Activities": [
+             {"code":"ALLAP","count":0},
+             {"code":"GRUDIG","count":0}
+        ]
+    }
+  ]
+}
+
+###

@@ -1,2 +1,2 @@
-GET http://localhost:8001/drf2/projectByName/TestProject
+GET http://nvrtx.oslomet.no:8001/drf2/projectByName/TestProject
 Accept: application/json

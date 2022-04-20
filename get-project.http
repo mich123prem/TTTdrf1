@@ -1,2 +1,2 @@
-GET http://127.0.0.1:8001/drf2/project/3
+GET http://nvrtx.oslomet.no:8001/drf2/project/3
 Accept: application/json

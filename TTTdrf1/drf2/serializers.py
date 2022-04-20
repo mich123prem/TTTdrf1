@@ -46,9 +46,10 @@ class ZoneSerializer(serializers.ModelSerializer):
 class ProjectSerializer(serializers.ModelSerializer):
     activities=ActivitySerializer(many=True)
     zones=ZoneSerializer(many=True)
+
     class Meta:
         model = Project
-        fields = ['name', 'description', 'activities', 'zones' ]
+        fields = ['id', 'name', 'description', 'activities', 'zones' ]
         depth = 1
 
 class CountingSerializer(serializers.ModelSerializer):

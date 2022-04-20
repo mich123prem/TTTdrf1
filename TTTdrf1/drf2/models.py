@@ -59,7 +59,8 @@ class  ActivityZone(models.Model):
     def __str__(self):
         return  str(self.zone.description) + " " +  str(self.activity.code) + " " +  str(self.numberOfVisitors)
 # ** TODO: how to enforce uniqueness constraints:
-#          if an activity is repeated the same day? overwrite?
+
+# ** TODO: if an activity is repeated the same day? overwrite?
 #          if an activity is releated for a zone within
 #          the hour, maybe it is not a new activity but overwrites the earlier one?
 #          What is implemented in the model, and what ini the view?

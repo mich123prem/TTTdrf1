@@ -1,4 +1,4 @@
-POST http://nvrtx.oslomet.no:8001/drf2/project/
+POST http://localhost:8001/drf2/project/
 Content-Type: application/json
 Cookie: key=first-value
 
@@ -12,12 +12,12 @@ Cookie: key=first-value
         "activity": [
           {
             "code": "GRUDIG",
-            "startTime": "2022-03-12 13:19:27",
+            "startTime": "2022-04-12 13:19:27",
             "numberOfVisitors": "1"
           },
           {
             "code": "ALLAP",
-            "startTime": "2022-03-12 13:19:27",
+            "startTime": "2022-04-12 13:19:27",
             "numberOfVisitors": "2"
           }
         ]

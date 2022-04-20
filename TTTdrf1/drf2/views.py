@@ -11,7 +11,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from pprint import pprint
-
+from TTTdrf1.drf2.permissions import CustomObjectPermissions
+from rest_framework_guardian import filters
 
 # **TODO: Check references to drf1. maybe rename it to avoid confusion?
 
@@ -171,6 +172,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
     API endpoint that allows projects to be viewed or edited.
     """
     serializer_class = ProjectSerializer
+    permission_classes = [CustomObjectPermissions]
+    filter_backends = [filters.ObjectPermissionsFilter]
 
     def get_object(self, pk):
         try:

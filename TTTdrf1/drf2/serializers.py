@@ -1,5 +1,7 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers
+from rest_framework_guardian.serializers import ObjectPermissionsAssignmentMixin
+
 from .models import Zone, Activity, ActivityZone, Project, Counting
 # ** TODO: USE dataclass serializer ? https://github.com/oxan/djangorestframework-dataclasses
 
@@ -43,7 +45,7 @@ class ZoneSerializer(serializers.ModelSerializer):
 
         depth = 1
 
-class ProjectSerializer(serializers.ModelSerializer):
+class ProjectSerializer(serializers.ModelSerializer, ):
     activities=ActivitySerializer(many=True)
     zones=ZoneSerializer(many=True)
 
@@ -51,6 +53,18 @@ class ProjectSerializer(serializers.ModelSerializer):
         model = Project
         fields = ['id', 'name', 'description', 'activities', 'zones' ]
         depth = 1
+
+    def get_permissions_map(self, created):
+        current_user = self.context['request'].user
+        readers = Group.objects.get(name='readers')
+        supervisors = Group.objects.get(name='supervisors')
+
+        return {
+            'view_post': [current_user, readers],
+            'change_post': [current_user],
+            'delete_post': [current_user, supervisors]
+        }
+
 
 class CountingSerializer(serializers.ModelSerializer):
     #fields = ProjectSerializer( source='counting_set', many=True ) # TODO ** ?

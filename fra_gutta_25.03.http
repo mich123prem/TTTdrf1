@@ -1,11 +1,11 @@
-POST http://nvrtx.oslomet.no:8001/drf2/counting/
+POST http://localhost:8001/drf2/counting/
 Content-Type: application/json
 Cookie: key=first-value
 
 {
   "project_id": 1,
   "observer_name": "Alf",
-  "timestamp": "2022-03-14 10:30",
+  "timestamp": "2022-04-15 10:30",
   "ActivityZones": [
     {
       "zone_ID": "1",

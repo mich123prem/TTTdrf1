@@ -54,7 +54,7 @@ class  ActivityZone(models.Model):
     counting = models.ForeignKey(Counting, default=1, on_delete=models.CASCADE) # ** TODO: counting 1 must be a dummy
 
     class Meta:
-        unique_together = ['activity', 'zone']
+        unique_together = ['activity', 'zone', 'counting']
 
     def __str__(self):
         return  str(self.zone.description) + " " +  str(self.activity.code) + " " +  str(self.numberOfVisitors)

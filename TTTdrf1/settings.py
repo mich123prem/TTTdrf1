@@ -49,7 +49,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-CSRF_TRUSTED_ORIGINS = ['https://ltr-abi.no']
+CSRF_TRUSTED_ORIGINS = ['https://ltr-abi.no:8443']
 ROOT_URLCONF = 'TTTdrf1.urls'
 
 TEMPLATES = [

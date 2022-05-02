@@ -4,6 +4,7 @@ from rest_framework.urlpatterns import format_suffix_patterns
 from .views import ActivityViewSet, ZoneViewSet, ProjectViewSet, \
     ActivityList, CountingViewSet, ProjectByName
 from rest_framework.routers import DefaultRouter
+from rest_framework.authtoken import views
 
 router=DefaultRouter()
 router.register("zone", ZoneViewSet, basename="zone")
@@ -18,6 +19,8 @@ urlpatterns = [
 #    path('drf2/<int:pk>/', views.SnippetDetail.as_view()),
     path('', include(router.urls)),
 
+    # to be able to fetch token with user/pass
+    path('api-token-auth/', views.obtain_auth_token),
 ]
 
 #urlpatterns = format_suffix_patterns(urlpatterns)

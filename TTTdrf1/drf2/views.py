@@ -1,18 +1,24 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User, Group
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets
-from rest_framework import permissions
-from TTTdrf1.drf2.serializers import UserSerializer, GroupSerializer, ActivitySerializer, ZoneSerializer, \
-    ProjectSerializer, CountingSerializer
-from .models import Activity, Zone, ActivityZone, Project, Counting
 from django.http import Http404
+
+from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
-from pprint import pprint
-from TTTdrf1.drf2.permissions import CustomObjectPermissions
+from rest_framework import status, permissions
+from rest_framework.permissions import DjangoObjectPermissions
+
 from rest_framework_guardian import filters
+
+from guardian.shortcuts import assign_perm #For special permissions (like biblioteksjef?)
+
+from TTTdrf1.drf2.serializers import UserSerializer, GroupSerializer, ActivitySerializer, ZoneSerializer, \
+    ProjectSerializer, CountingSerializer
+from TTTdrf1.drf2.models import Activity, Zone, ActivityZone, Project, Counting
+from TTTdrf1.drf2.permissions import CustomObjectPermissions
+
+from pprint import pprint
 
 # **TODO: Check references to drf1. maybe rename it to avoid confusion?
 
@@ -115,16 +121,13 @@ class ZoneViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         pass
 
-"""
-    activity = models.ForeignKey(Activity, on_delete=models.CASCADE)
-    zone = models.ForeignKey(Zone, on_delete=models.CASCADE)
-    startTime = models.DateTimeField(auto_now=False) # App registers time
-    countingUser = models.IntegerField() # **TODO: foreign key to a user
-    numberOfVisitors = models.IntegerField() # THE COUNT ITSELF
-
-"""
 
 class CountingViewSet(viewsets.ModelViewSet):
+    #
+    # A counting objects represents a single "trip" through all the
+    # zones of the library, at a common timestamp (startTime).
+    # Represents a particular registration sheet of the traditional excel-file
+    #
     serializer_class = CountingSerializer
 
     def get_queryset(self):
@@ -144,16 +147,11 @@ class CountingViewSet(viewsets.ModelViewSet):
             startTime=counting_item["timestamp"],
             observerName = counting_item["observer_name"]
                                                )
-        print( "pn=",counting_obj.project.pk, counting_obj.project.name )
         counting_obj.save()
         for zone_item in counting_item["ActivityZones"]:
             zone_obj = Zone.objects.get(pk=zone_item["zone_ID"]) # Or use zone name
-                #lettername=zone_item["lettername"],
-
-                                        #project=project_obj)
             for activity_item in zone_item["Activities"]:
                 # WE ASSUME ACTIVITY EXISTS!!!
-                #activityZone_obj=ActivityZone.objects.get_or_create(zone=zone_obj,)
                 activity_obj=Activity.objects.get(code=activity_item["code"])
                 activity_zone_obj = createActivityZone(activity_item, zone_obj, activity_obj, counting_obj) #zone_obj.activityzone_set.get_or_create(zone=zone_obj, activity=activity_obj)
 
@@ -161,9 +159,7 @@ class CountingViewSet(viewsets.ModelViewSet):
                 #activity_zone_obj.startTime = activity_item["startTime"]
                 activity_zone_obj.save()
                 #zone_obj.add(activity_zone_obj)
-            #print("activity_obj:", activity_obj)
 
-            #project_obj.add(zone_obj)
         serializer = CountingSerializer(counting_obj)
         return Response(serializer.data)
 
@@ -269,7 +265,7 @@ class ActivityDetail(APIView):
 #class FullProjectList(APIView):
 class ProjectDetail(APIView):
     """
-    Retrieve, update or delete a activity instance.
+    Retrieve, update or delete an activity-instance.
     """
 
     def get_object(self, pk):

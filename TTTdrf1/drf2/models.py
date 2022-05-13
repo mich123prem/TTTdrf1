@@ -19,6 +19,15 @@ class Project(models.Model):
     def __str__(self):
         return self.name
 
+class Observer(models.Model):
+    #
+    # A dummy class to be removed when user authentication is in place
+    #
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='observers')
+    observerName = models.CharField( max_length=50, default="", blank=True )
+    def __str__(self):
+        return self.observerName
+
 class Counting(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     observerName=models.CharField(max_length=50, default = "", blank=True)

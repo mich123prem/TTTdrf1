@@ -14,8 +14,8 @@ from rest_framework_guardian import filters
 from guardian.shortcuts import assign_perm #For special permissions (like biblioteksjef?)
 
 from TTTdrf1.drf2.serializers import UserSerializer, GroupSerializer, ActivitySerializer, ZoneSerializer, \
-    ProjectSerializer, CountingSerializer
-from TTTdrf1.drf2.models import Activity, Zone, ActivityZone, Project, Counting
+    ProjectSerializer, CountingSerializer, ObserverSerializer
+from TTTdrf1.drf2.models import Activity, Zone, ActivityZone, Project, Counting, Observer
 from TTTdrf1.drf2.permissions import CustomObjectPermissions
 
 from pprint import pprint
@@ -209,6 +209,16 @@ class ProjectViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
+class ObserverViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows activities to be viewed or edited.
+    """
+    serializer_class = ObserverSerializer
+
+    def get_queryset(self):
+        observer = Observer.objects.all()  # can also use other methods, like get() or complexFilter
+        return observer
+    # TODO: **Trenger vi egentlig denne? activityZones bare brukes i prosjekter
 
 
 

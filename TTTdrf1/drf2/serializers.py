@@ -2,7 +2,7 @@ from django.contrib.auth.models import User, Group
 from rest_framework import serializers
 from rest_framework_guardian.serializers import ObjectPermissionsAssignmentMixin
 
-from .models import Zone, Activity, ActivityZone, Project, Counting
+from .models import Zone, Activity, ActivityZone, Project, Counting, Observer
 # ** TODO: USE dataclass serializer ? https://github.com/oxan/djangorestframework-dataclasses
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -40,18 +40,26 @@ class ZoneSerializer(serializers.ModelSerializer):
     class Meta:
         model = Zone
         # Zone will have a limited number of activities while activity can have "endless" zones
-
         fields=['lettername', 'observerName' ,'sequencenumber', 'description', 'comment', 'activities', 'project']
-
         depth = 1
+
+class ObserverSerializer(serializers.ModelSerializer):
+    # To be removed when users are properly in action
+    class Meta:
+        model = Observer
+        #
+        fields = ['observerName']
+        depth = 1
+
 
 class ProjectSerializer(serializers.ModelSerializer, ):
     activities=ActivitySerializer(many=True)
     zones=ZoneSerializer(many=True)
+    observers = ObserverSerializer(many=True)
 
     class Meta:
         model = Project
-        fields = ['id', 'name', 'description', 'activities', 'zones' ]
+        fields = ['id', 'name', 'description', 'activities', 'zones', 'observers', ]
         depth = 1
 
     def get_permissions_map(self, created):

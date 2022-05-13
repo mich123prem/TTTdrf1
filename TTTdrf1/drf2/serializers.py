@@ -40,7 +40,7 @@ class ZoneSerializer(serializers.ModelSerializer):
     class Meta:
         model = Zone
         # Zone will have a limited number of activities while activity can have "endless" zones
-        fields=['lettername', 'observerName' ,'sequencenumber', 'description', 'comment', 'activities', 'project']
+        fields=['id', 'lettername', 'observerName' ,'sequencenumber', 'description', 'comment', 'activities', 'project']
         depth = 1
 
 class ObserverSerializer(serializers.ModelSerializer):

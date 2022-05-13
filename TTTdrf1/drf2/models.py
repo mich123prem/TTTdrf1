@@ -29,7 +29,7 @@ class Counting(models.Model):
         #    For simplicity projects can be unique across domain (all libraries)
 
 class Zone(models.Model):
-    lettername = models.CharField(max_length=50) # MUST ADD LIBRARY NAME TO MAKE UNIQUE ?
+    lettername = models.CharField(max_length=50) # TODO: MUST ADD LIBRARY NAME TO MAKE UNIQUE ?
     sequencenumber = models.IntegerField()
     description = models.CharField(max_length=255)
     observerName=models.CharField(max_length=255, default = "", blank=True)

@@ -168,8 +168,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
     API endpoint that allows projects to be viewed or edited.
     """
     serializer_class = ProjectSerializer
-    permission_classes = [CustomObjectPermissions]
-    filter_backends = [filters.ObjectPermissionsFilter]
+    permission_classes = [permissions.IsAuthenticated]#, CustomObjectPermissions]
+    #filter_backends = [filters.ObjectPermissionsFilter]
 
     def get_object(self, pk):
         try:

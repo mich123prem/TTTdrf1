@@ -1,10 +1,10 @@
-POST https://ltr-abi.no:8443/drf2/counting/
+POST http://localhost:8001/drf2/counting/
 Content-Type: application/json
+Authorization: Token 768fac501b086edd2deaddebd1984c14ca9c5b72
 Cookie: key=first-value
-Authorization: 504503a0095d620206be8ef7f1fbe3c9fee32b91
 
 {
-  "project_id": 1,
+  "project_id": 3,
   "observer_name": "Alf",
   "timestamp": "2022-04-15 10:30",
   "ActivityZones": [
@@ -13,7 +13,7 @@ Authorization: 504503a0095d620206be8ef7f1fbe3c9fee32b91
       "Activities": [
         {
           "code": "ALLAP",
-          "count": 5
+          "count": "5"
         },
         {
           "code": "GRUDIG",
@@ -33,3 +33,4 @@ Authorization: 504503a0095d620206be8ef7f1fbe3c9fee32b91
   ]
 }
 
+###

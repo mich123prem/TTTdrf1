@@ -14,4 +14,9 @@ class CustomObjectPermissions(permissions.DjangoObjectPermissions):
         'PATCH': ['%(app_label)s.change_%(model_name)s'],
         'DELETE': ['%(app_label)s.delete_%(model_name)s'],
     }
+class ObjectOnlyPermissions(permissions.DjangoObjectPermissions):
+
+    def has_permission(self, request, view):
+        return True
+
 

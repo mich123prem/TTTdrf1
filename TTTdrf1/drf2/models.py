@@ -16,6 +16,14 @@ class Project(models.Model):
     description = models.CharField(max_length=255, default = "", blank=True)
     activities = models.ManyToManyField( Activity, blank="True" )
     #zones = models.ManyToOneRel('Zone')
+    class Meta:
+        '''
+        permissions = (
+            ("view_project", "Can see available projects"),
+#            ("change_task_status", "Can change the status of tasks"),
+#            ("close_task", "Can remove a task by setting its status as closed"),
+        )
+        '''
     def __str__(self):
         return self.name
 

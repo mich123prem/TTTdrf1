@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'django_filters',
     'rest_framework.authtoken',
     'guardian',
     #'TTTdrf1.drf1',
@@ -79,6 +80,9 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PERMISSION_CLASSES':[
         'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
     ]
 }
 
@@ -139,3 +143,43 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 ALLOWED_HOSTS =["nvrtx.oslomet.no", "ltr-abi.no", "127.0.0.1", "localhost"]
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(asctime)s %(levelname)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+        'simple': {
+            'format': '%(asctime)s %(levelname)s %(message)s'
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'drf2.log',
+            'formatter': 'simple'
+        },
+        'debug':{
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'drf2.log',
+            'formatter': 'verbose'
+
+        },
+    },
+    'loggers': {
+        'oauth': {
+            'handlers': ['file'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+        'oauth2': {
+            'handlers': ['debug'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}

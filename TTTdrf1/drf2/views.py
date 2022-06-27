@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from django.contrib.auth.models import User, Group
 from django.shortcuts import get_object_or_404
 from django.http import Http404
@@ -7,19 +6,32 @@ from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
-from rest_framework.permissions import DjangoObjectPermissions
-
 from rest_framework_guardian import filters
-
-from guardian.shortcuts import assign_perm #For special permissions (like biblioteksjef?)
-
 from TTTdrf1.drf2.serializers import UserSerializer, GroupSerializer, ActivitySerializer, ZoneSerializer, \
     ProjectSerializer, CountingSerializer, ObserverSerializer
 from TTTdrf1.drf2.models import Activity, Zone, ActivityZone, Project, Counting, Observer
-from TTTdrf1.drf2.permissions import CustomObjectPermissions
+from TTTdrf1.drf2.permissions import CustomObjectPermissions, ObjectOnlyPermissions
 
 from pprint import pprint
+from pprint import pprint
 
+from django.contrib.auth.models import User, Group
+from django.http import Http404
+from django.shortcuts import get_object_or_404
+from rest_framework import status, permissions
+from rest_framework import viewsets
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from TTTdrf1.drf2.models import Activity, Zone, ActivityZone, Project, Counting, Observer
+from TTTdrf1.drf2.permissions import CustomObjectPermissions
+from TTTdrf1.drf2.serializers import UserSerializer, GroupSerializer, ActivitySerializer, ZoneSerializer, \
+    ProjectSerializer, CountingSerializer, ObserverSerializer
+
+import inspect
+import logging
+logging.debug('Watch out!')
+logger = logging.getLogger("oauth2")
 # **TODO: Check references to drf1. maybe rename it to avoid confusion?
 
 # Create your views here.
@@ -29,7 +41,7 @@ class UserViewSet(viewsets.ModelViewSet):
     """
     queryset = User.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, CustomObjectPermissions]
 
 
 class GroupViewSet(viewsets.ModelViewSet):
@@ -168,12 +180,14 @@ class ProjectViewSet(viewsets.ModelViewSet):
     API endpoint that allows projects to be viewed or edited.
     """
     serializer_class = ProjectSerializer
-    permission_classes = [permissions.IsAuthenticated]#, CustomObjectPermissions]
-    #filter_backends = [filters.ObjectPermissionsFilter]
+    permission_classes = [ObjectOnlyPermissions]
+    filter_backends = [filters.ObjectPermissionsFilter]
 
     def get_object(self, pk):
         try:
-            return Project.objects.get(pk=pk)
+            obj = get_object_or_404(self.get_queryset(), pk=self.kwargs["pk"])
+            self.check_object_permissions( self.request, obj )
+            return obj
         except Project.DoesNotExist:
             raise Http404
 
@@ -202,7 +216,12 @@ class ProjectViewSet(viewsets.ModelViewSet):
         serializer = ProjectSerializer(project_obj)
         return Response(serializer.data)
 
+    def perform_create(self):
+        # ** TODO: IMPLEMENT THIS for restricted creation of objects
+        return super().perform_create()
+
     def retrieve(self, request, name=None):
+        logger.debug( "in retrieve:" )
         queryset= Project.objects.all()
         project=get_object_or_404(queryset, name=name)
         serializer = ProjectSerializer(project)

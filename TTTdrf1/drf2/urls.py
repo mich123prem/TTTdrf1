@@ -20,7 +20,7 @@ urlpatterns = [
     path('', include(router.urls)),
 
     # to be able to fetch token with user/pass
-    path('api-token-auth/', views.obtain_auth_token),
+    path('api-token-auth/', views.ObtainAuthToken.as_view()),
 ]
 
 #urlpatterns = format_suffix_patterns(urlpatterns)

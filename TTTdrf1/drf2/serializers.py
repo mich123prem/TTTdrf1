@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers
+from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework_guardian.serializers import ObjectPermissionsAssignmentMixin
 
 from .models import Zone, Activity, ActivityZone, Project, Counting, Observer

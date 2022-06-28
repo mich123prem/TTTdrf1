@@ -22,7 +22,8 @@ from rest_framework import status, permissions
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.models import Token
 from TTTdrf1.drf2.models import Activity, Zone, ActivityZone, Project, Counting, Observer
 from TTTdrf1.drf2.permissions import CustomObjectPermissions
 from TTTdrf1.drf2.serializers import UserSerializer, GroupSerializer, ActivitySerializer, ZoneSerializer, \
@@ -42,6 +43,13 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated, CustomObjectPermissions]
+
+    def retrieve(self, request, name=None, password=None ):
+        logger.debug( "in retrieve:" )
+        queryset= User.objects.all()
+        user=get_object_or_404(queryset, name=name, password=password)
+        serializer = UserSerializer(user)
+        return Response(serializer.data)
 
 
 class GroupViewSet(viewsets.ModelViewSet):
@@ -227,6 +235,14 @@ class ProjectViewSet(viewsets.ModelViewSet):
         serializer = ProjectSerializer(project)
         return Response(serializer.data)
 
+
+class ObtainAuthToken_get(ObtainAuthToken):
+    def get(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        token, created = Token.objects.get_or_create(user=user)
+        return Response({'token': token.key})
 
 class ObserverViewSet(viewsets.ModelViewSet):
     """

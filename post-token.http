@@ -1,0 +1,4 @@
+POST http://localhost:8001/drf2/api-token-auth/
+Accept: application/json
+
+username=alf&password=a1l2f3xx

@@ -1,0 +1,3 @@
+GET http://alf:a1l2f3xx:@localhost:8001/drf2/api-token-auth
+Accept: application/json
+

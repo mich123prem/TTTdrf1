@@ -7,6 +7,8 @@ from django.db import models
 class Activity(models.Model):
     code = models.CharField(max_length=50)
     description = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.code
@@ -15,6 +17,8 @@ class Project(models.Model):
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=255, default = "", blank=True)
     activities = models.ManyToManyField( Activity, blank="True" )
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
     #zones = models.ManyToOneRel('Zone')
     class Meta:
         '''
@@ -40,6 +44,7 @@ class Counting(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     observerName=models.CharField(max_length=50, default = "", blank=True)
     startTime = models.DateTimeField(auto_now=False, blank=True)
+
     class Meta:
         unique_together= ['project','startTime']
         # TODO: ** a counting at a project at a library needs to be unique
@@ -53,6 +58,8 @@ class Zone(models.Model):
     comment = models.CharField(max_length=255, default = "", blank=True)
     activities = models.ManyToManyField(Activity, through='ActivityZone')
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='zones')
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
 
 
     class Meta:
@@ -69,7 +76,8 @@ class  ActivityZone(models.Model):
     countingUser = models.IntegerField(default=0) # **TODO: foreign key to a user
     numberOfVisitors = models.IntegerField(default=-1) # THE COUNT ITSELF
     counting = models.ForeignKey(Counting, default=1, on_delete=models.CASCADE) # ** TODO: counting 1 must be a dummy
-
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
     class Meta:
         unique_together = ['activity', 'zone', 'counting']
 

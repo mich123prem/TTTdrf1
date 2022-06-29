@@ -161,12 +161,18 @@ class CountingViewSet(viewsets.ModelViewSet):
         #try: A COUNTING OBJECT IS ALWAYS NEW
             #counting_obj = Project.objects.get(name=project_item["name"])
         #except:
+        project = Project.objects.get( pk=counting_item["project_id"] )  # counting_item["project_id"]),
+        startTime=counting_item["timestamp"]
         counting_obj = Counting.objects.create(
-            project=Project.objects.get(pk=counting_item["project_id"]),#counting_item["project_id"]),
+            project=project,
 
-            startTime=counting_item["timestamp"],
+            startTime=startTime,
+
             observerName = counting_item["observer_name"]
                                                )
+
+        project.modified_at = startTime
+        project.save()
         counting_obj.save()
         for zone_item in counting_item["ActivityZones"]:
             zone_obj = Zone.objects.get(pk=zone_item["zone_ID"]) # Or use zone name
@@ -236,13 +242,6 @@ class ProjectViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class ObtainAuthToken_get(ObtainAuthToken):
-    def get(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data['user']
-        token, created = Token.objects.get_or_create(user=user)
-        return Response({'token': token.key})
 
 class ObserverViewSet(viewsets.ModelViewSet):
     """
@@ -332,12 +331,40 @@ class ProjectByName(APIView):
             raise Http404
 
     def get(self, request, pk=0, format=None):
-        print("rd:", end="")
-        pprint(request)
-        serializer=ProjectSerializer(project)
-
-        """
         project = self.get_object(pk)
         serializer = ProjectSerializer(project)
         return Response(serializer.data)
-        """
+
+class ProjectByUser(APIView):
+
+    # How to chose default project to return to a user?
+    #   - The last ('-modified_at') project the user has engaged with ?
+    #   - The last ('-modified_at') project the user has permission to ?
+    NotYetImplemented=True
+    def get_object(self, pk):
+        try:
+            return Project.objects.get(pk=pk)
+        except Project.DoesNotExist:
+            raise Http404
+
+    def get(self, request):
+        #GET THE LATEST PROJECT ASSOCIATED WITH CURRENT USER
+        project=None
+        queryset_list = list(Project.objects.all().order_by( '-modified_at' ))
+        logger.warning("after queryset")
+        if self.NotYetImplemented:
+            project=self.get_object( 4 )
+            serializer = ProjectSerializer( project )
+            return Response( serializer.data )
+
+        for po in queryset_list:
+            # User has permissions?
+            logger.warning("before if")
+            if self.check_object_permissions(self.request, po):
+                project=self.get_object(po.pk)
+                logger.warning("Name="+project.name)
+
+
+        serializer=ProjectSerializer(project)
+        return Response(serializer.data)
+

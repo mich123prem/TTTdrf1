@@ -1,0 +1,4 @@
+GET http://localhost:8001/drf2/project_by_token
+Accept: application/json
+Authorization: Token 768fac501b086edd2deaddebd1984c14ca9c5b72
+

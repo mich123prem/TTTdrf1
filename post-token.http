@@ -1,4 +1,5 @@
-POST http://localhost:8001/drf2/api-token-auth/
+POST https://ltr-abi.no:8443/drf2/api-token-auth/
 Accept: application/json
+Content-Type: application/json
 
-username=alf&password=a1l2f3xx
+{"username":"alf","password":"a1l2f3xx"}
